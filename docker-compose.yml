@@ -3,7 +3,7 @@ version: '3.8'
 services:
   web:
     build: ./
-    command: flask db upgrade && flask run --port=5000 --host="0.0.0.0"
+    command: flask run --port=5000 --host="0.0.0.0"
     volumes:
       - ./:/usr/src/app/
     ports:

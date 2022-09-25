@@ -1,0 +1,12 @@
+flask-restful==0.3.9
+requests==2.27.1
+flask-SQLAlchemy==2.5.1
+flask-migrate==3.1.0
+flask-cors==3.0.10
+flask-hashing==1.1
+itsdangerous==2.0.1
+Flask==2.0.1
+PyJWT==2.1.0
+Flask_JWT_Extended==4.2.1
+flask-expects-json==1.7.0
+pyodbc==4.0.28

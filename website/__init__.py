@@ -258,7 +258,7 @@ def create_app():
     # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', f"sqlite:///{DB_NAME}").replace("postgres", "postgresql")
     app.config[
         #'SQLALCHEMY_DATABASE_URI'] = "mssql+pyodbc://localhost\\SQLEXPRESS/TestDB2?driver=ODBC+Driver+17+for+SQL+Server"
-        'SQLALCHEMY_DATABASE_URI'] = "mssql+pyodbc://sa:haslO1234_@db/model?driver=ODBC+Driver+17+for+SQL+Server"
+        'SQLALCHEMY_DATABASE_URI'] = "mssql+pyodbc://languageapp:Kanapa123@languageapp.database.windows.net/LangageDB?driver=ODBC+Driver+17+for+SQL+Server"
 
     app.config["SECRET_KEY"] = "123456789"
     api = Api(app=app)

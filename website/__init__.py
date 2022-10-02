@@ -204,7 +204,7 @@ class AddWords(Resource):
 
         db.engine.execute(insert_family_query)
         db.engine.execute(insert_pair_query)
-        return make_response(jsonify(word_1=word_1.word_id, word_id_2=word_2.word_id, msg="Word added", status=201), 201)
+        return make_response(jsonify(word_id_1=word_1.word_id, word_id_2=word_2.word_id, msg="Word added", status=201), 201)
 
 
 class UserLogout(Resource):

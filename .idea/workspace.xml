@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="52662d75-ac15-47fb-8bb0-f263711d44a0" name="Default Changelist" comment="jwt fix">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="52662d75-ac15-47fb-8bb0-f263711d44a0" name="Default Changelist" comment="jwt fix" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -329,7 +327,14 @@
       <option name="project" value="LOCAL" />
       <updated>1664097210609</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="heroku docker">
+      <created>1664720389564</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1664720389564</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -358,7 +363,8 @@
     <MESSAGE value="Graph Database" />
     <MESSAGE value="migrations upgade" />
     <MESSAGE value="migrations upgrade" />
-    <option name="LAST_COMMIT_MESSAGE" value="migrations upgrade" />
+    <MESSAGE value="heroku docker" />
+    <option name="LAST_COMMIT_MESSAGE" value="heroku docker" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

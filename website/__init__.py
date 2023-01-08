@@ -76,7 +76,7 @@ class GamesWordsAssoc(Resource):
 class AllWords(Resource):
     @jwt_required()
     def get(self):
-        words = [{"word_id": word.word_id, "word_name": word.word_name, "context": word.context} for word in
+        words = [{"word_id": word.word_id, "word_name": word.word_name, "word_context": word.word_context} for word in
                  Word.query.all()]
         return jsonify(words)
 

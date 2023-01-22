@@ -110,6 +110,12 @@ class AllWords(Resource):
 #         word = Word.query.filter_by(word_name=new_word_request["word_name"]).first()
 #         return jsonify(id=word.word_id, msg="Word added", status=201)
 #
+class LibrariesAll(Resource):
+    @jwt_required()
+    def get(self):
+        libraries = [{"library_id": lib.library_id, "library_name": lib.library_name} for lib in
+                 Library.query.all()]
+        return jsonify(libraries)
 
 
 class AddLib(Resource):
@@ -266,7 +272,8 @@ def create_app():
     jwtmanager = JWTManager(app)
     from .routes import Words, Languages, Users, UserInfo, Echo, Scores, Games
     api.add_resource(AddWords, "/words/add")
-    api.add_resource(AddLib, "/library/add")
+    api.add_resource(AddLib, "/libraries/add")
+    api.add_resource(LibrariesAll, "/libraries")
     api.add_resource(Words, "/words/<int:id>")
     api.add_resource(AllWords, "/words")
     api.add_resource(Languages, "/languages")

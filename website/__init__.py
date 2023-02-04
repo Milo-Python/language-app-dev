@@ -229,7 +229,7 @@ class AddLanguages(Resource):
 
         new_language_request = request.json
 
-        language = Language(word_name=new_language_request["language_code"], word_context=new_language_request.get("language_name", None))
+        language = Language(language_code=new_language_request["language_code"], language_name=new_language_request.get("language_name", None))
         db.session.add(language)
 
         db.session.commit()

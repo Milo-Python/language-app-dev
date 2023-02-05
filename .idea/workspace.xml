@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="52662d75-ac15-47fb-8bb0-f263711d44a0" name="Default Changelist" comment="jwt fix">
+    <list default="true" id="52662d75-ac15-47fb-8bb0-f263711d44a0" name="Default Changelist" comment="AddLanguages class fix 2">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/website/__init__.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,30 +48,14 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/website" />
   </component>
-  <component name="RunManager" selected="Python.app (1)">
-    <configuration name="app (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="LanguageAPI" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/app.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\User\Documents\GitHub\language-app-dev\website" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.app2">
     <configuration name="app" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="LanguageAPI" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -86,6 +69,27 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="C:\Users\User\Documents\GitHub\metok_21_py\LanguageAPI\app.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="app2" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="language-app-dev" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\User\Documents\GitHub\language-app-dev\venv\Scripts\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/app.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -150,9 +154,17 @@
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Python.app" />
+      <item itemvalue="Python.app2" />
+      <item itemvalue="Python tests.Unittests for api_test_heroku.TestCases" />
+      <item itemvalue="Python tests.Unittests for api_test_heroku.TestCases.test_add_word" />
+      <item itemvalue="Python tests.Unittests for api_test_heroku.TestCases.test_get_all_words" />
+      <item itemvalue="Python tests.Unittests for api_tests.ApiTests.test_echo" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.app (1)" />
+        <item itemvalue="Python.app2" />
         <item itemvalue="Python tests.Unittests for api_test_heroku.TestCases.test_add_word" />
         <item itemvalue="Python tests.Unittests for api_test_heroku.TestCases.test_get_all_words" />
         <item itemvalue="Python tests.Unittests for api_test_heroku.TestCases" />
@@ -358,7 +370,42 @@
       <option name="project" value="LOCAL" />
       <updated>1664724389812</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="word_context fix">
+      <created>1673189342550</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1673189342550</updated>
+    </task>
+    <task id="LOCAL-00029" summary="LibrariesAll">
+      <created>1674401884854</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1674401884854</updated>
+    </task>
+    <task id="LOCAL-00030" summary="AddLanguages class added">
+      <created>1675542117359</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1675542117359</updated>
+    </task>
+    <task id="LOCAL-00031" summary="AddLanguages class fix">
+      <created>1675543840467</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1675543840467</updated>
+    </task>
+    <task id="LOCAL-00032" summary="AddLanguages class fix 2">
+      <created>1675545029936</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1675545029936</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -389,7 +436,12 @@
     <MESSAGE value="migrations upgrade" />
     <MESSAGE value="heroku docker" />
     <MESSAGE value="word chg" />
-    <option name="LAST_COMMIT_MESSAGE" value="word chg" />
+    <MESSAGE value="word_context fix" />
+    <MESSAGE value="LibrariesAll" />
+    <MESSAGE value="AddLanguages class added" />
+    <MESSAGE value="AddLanguages class fix" />
+    <MESSAGE value="AddLanguages class fix 2" />
+    <option name="LAST_COMMIT_MESSAGE" value="AddLanguages class fix 2" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

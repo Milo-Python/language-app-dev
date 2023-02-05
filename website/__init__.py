@@ -50,27 +50,27 @@ def identity(payload):
         return user
 
 
-class GamesWordsAssoc(Resource):
-    @jwt_required()
-    def get(self):
-        new_gwa_request = request.json
-        game_word_assoc = [{"game_word_id": new_gwa_request.game_word_id, "word_id": new_gwa_request.word_id,
-                            "game_id": new_gwa_request.game_id,
-                            "success_flag": new_gwa_request.success_flag} for new_gwa_request in
-                           GameWordAssoc.query.all()]
-        return jsonify(game_word_assoc)
-
-    @jwt_required()
-    def post(self):
-        new_gwa_request = request.json
-        word = Word.query.filter_by(word_name=new_gwa_request["word_name"]).first()
-        game = Game.query.filter_by(game_name=new_gwa_request["game_name"]).first()
-        game_word_assoc = GameWordAssoc(word_id=word.word_id, game_id=game.game_id,
-                                        success_flag=new_gwa_request["success_flag"])
-        db.session.add(game_word_assoc)
-        db.session.commit()
-        game_word_assoc = GameWordAssoc.query.filter_by(success_flag=new_gwa_request["success_flag"]).first()
-        return jsonify(id=game_word_assoc.game_word_id, msg="Game word association added", status=201)
+# class GamesWordsAssoc(Resource):
+#     @jwt_required()
+#     def get(self):
+#         new_gwa_request = request.json
+#         game_word_assoc = [{"game_word_id": new_gwa_request.game_word_id, "word_id": new_gwa_request.word_id,
+#                             "game_id": new_gwa_request.game_id,
+#                             "success_flag": new_gwa_request.success_flag} for new_gwa_request in
+#                            GameWordAssoc.query.all()]
+#         return jsonify(game_word_assoc)
+#
+#     @jwt_required()
+#     def post(self):
+#         new_gwa_request = request.json
+#         word = Word.query.filter_by(word_name=new_gwa_request["word_name"]).first()
+#         game = Game.query.filter_by(game_name=new_gwa_request["game_name"]).first()
+#         game_word_assoc = GameWordAssoc(word_id=word.word_id, game_id=game.game_id,
+#                                         success_flag=new_gwa_request["success_flag"])
+#         db.session.add(game_word_assoc)
+#         db.session.commit()
+#         game_word_assoc = GameWordAssoc.query.filter_by(success_flag=new_gwa_request["success_flag"]).first()
+#         return jsonify(id=game_word_assoc.game_word_id, msg="Game word association added", status=201)
 
 
 class AllWords(Resource):
@@ -308,7 +308,7 @@ def create_app():
     api.add_resource(AllWords, "/words")
     api.add_resource(Languages, "/languages")
     api.add_resource(Scores, "/scores")
-    api.add_resource(GamesWordsAssoc, "/games-words-assoc")
+    # api.add_resource(GamesWordsAssoc, "/games-words-assoc")
     api.add_resource(Games, "/games")
     api.add_resource(Users, "/users")
     api.add_resource(UserInfo, "/users/<int:id>")

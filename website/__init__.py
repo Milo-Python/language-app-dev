@@ -212,34 +212,34 @@ class AddWords(Resource):
         db.engine.execute(insert_pair_query)
         return make_response(jsonify(word_id_1=word_1.word_id, word_id_2=word_2.word_id, msg="Word added", status=201), 201)
 
-class AddLanguages(Resource):
-
-    schema = {
-        "type": "object",
-        "properties": {
-            "language_code": {"type": "string", "minLength": 3, "maxLength": 3},
-            "language_name": {"type": "string", "minLength": 3, "maxLength": 50}
-                            },
-        "required": ["language_code", "language_name"]
-    }
-
-    @expects_json(schema)
-    @jwt_required()
-    def post(self):
-
-        new_language_request = request.json
-
-        language = Language(language_code=new_language_request["language_code"], language_name=new_language_request["language_name"])
-        db.session.add(language)
-
-        db.session.commit()
-        db.session.flush()
-
-        insert_language_query = f"""INSERT INTO language VALUES ('{language.language_code}', '{language.language_name}');"""
-
-
-        db.engine.execute(insert_language_query)
-        return make_response(jsonify(language_id=language.language_id, language_name=language.language_name, msg="Language added", status=201), 201)
+# class AddLanguages(Resource):
+#
+#     schema = {
+#         "type": "object",
+#         "properties": {
+#             "language_code": {"type": "string", "minLength": 3, "maxLength": 3},
+#             "language_name": {"type": "string", "minLength": 3, "maxLength": 50}
+#                             },
+#         "required": ["language_code", "language_name"]
+#     }
+#
+#     @expects_json(schema)
+#     @jwt_required()
+#     def post(self):
+#
+#         new_language_request = request.json
+#
+#         language = Language(language_code=new_language_request["language_code"], language_name=new_language_request["language_name"])
+#         db.session.add(language)
+#
+#         db.session.commit()
+#         db.session.flush()
+#
+#         insert_language_query = f"""INSERT INTO language VALUES ('{language.language_code}', '{language.language_name}');"""
+#
+#
+#         db.engine.execute(insert_language_query)
+#         return make_response(jsonify(language_id=language.language_id, language_name=language.language_name, msg="Language added", status=201), 201)
 
 
 class UserLogout(Resource):
@@ -302,7 +302,7 @@ def create_app():
     from .routes import Words, Languages, Users, UserInfo, Echo, Scores, Games
     api.add_resource(AddWords, "/words/add")
     api.add_resource(AddLib, "/libraries/add")
-    api.add_resource(AddLanguages, "/languages/add")
+    # api.add_resource(AddLanguages, "/languages/add")
     api.add_resource(LibrariesAll, "/libraries")
     api.add_resource(Words, "/words/<int:id>")
     api.add_resource(AllWords, "/words")

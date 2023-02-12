@@ -11,6 +11,7 @@ from flask_hashing import Hashing
 import os
 from flask import make_response, jsonify
 from jsonschema import ValidationError
+from applicationinsights.flask.ext import AppInsights
 
 from flask_jwt_extended import (
     create_access_token,
@@ -22,6 +23,7 @@ from flask_jwt_extended import (
 )
 
 db = SQLAlchemy()
+appinsights = AppInsights()
 
 from .data import DataContext
 
@@ -288,6 +290,13 @@ hashing = Hashing()
 def create_app():
     # https://flask-restful.readthedocs.io/en/latest/quickstart.html
     app = Flask(__name__)
+    appinsights.init_app(app)
+
+    @app.after_request
+    def after_request(response):
+        appinsights.flush()
+        return response
+
     CORS(app)
     # app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_NAME}"
     # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', f"sqlite:///{DB_NAME}").replace("postgres", "postgresql")

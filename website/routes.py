@@ -1,8 +1,9 @@
 from flask_expects_json import expects_json
 from flask_restful import Resource
-from . import data_context
+from . import data_context, appinsights
 from flask import jsonify, request
 from flask import make_response
+from flask import current_app as app
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -15,6 +16,11 @@ from flask_jwt_extended import (
 
 class Echo(Resource):
     def get(self):
+        # app.logger.debug('This is a debug log message')
+        # app.logger.info('This is an information log message')
+        # app.logger.warn('This is a warning log message')
+        app.logger.error('This is an error message')
+        # app.logger.critical('This is a critical message')
         return jsonify(status=200, msg="OK")
 
 

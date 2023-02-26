@@ -135,6 +135,7 @@ class AddLib(Resource):
     @expects_json(schema)
     @jwt_required()
     def post(self):
+        user_id = get_jwt_identity()
         new_lib_request = request.json
 
         language_1 = Language.query.filter_by(language_id=new_lib_request["language_id_1"]).first()
@@ -156,7 +157,9 @@ class AddLib(Resource):
         INSERT INTO translation VALUES ((SELECT $node_id FROM [Library] WHERE [library_id] = {library.library_id}), (SELECT $node_id FROM [Language] WHERE [language_id] = {language_1.language_id}), 'from'),
 		   ((SELECT $node_id FROM [Library] WHERE [library_id] = {library.library_id}), (SELECT $node_id FROM [Language] WHERE [language_id] = {language_2.language_id}), 'to');"""
 
+        insert_user_query = f"""INSERT INTO [dbo].[use] VALUES ((SELECT $node_id FROM [dbo].[user] WHERE user_id = {user_id}), (SELECT $node_id FROM library WHERE library_id = {library.library_id}), GETDATE());"""
         db.engine.execute(insert_language_pair_query)
+        db.engine.execute(insert_user_query)
 
         return make_response(jsonify(library_id=library.library_id, library_name=library.library_name, msg="Library added", status=201),
                              201)

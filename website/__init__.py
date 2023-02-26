@@ -197,7 +197,7 @@ class AddWords(Resource):
         library = Library.query.filter_by(library_id=new_word_request["library_id"]).first()
 
         if not library:
-            return make_response(jsonify(mgs="library not found", code=404), 404)
+            return make_response(jsonify(mgs=f"library not found: {new_word_request['library_id']}", code=404), 404)
         
 
         word_1 = Word(word_name=new_word_request["word_name_1"], word_context=new_word_request.get("word_context_1", None))

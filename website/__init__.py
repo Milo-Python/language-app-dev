@@ -173,9 +173,10 @@ class AddWords(Resource):
             "word_name_2": {"type": "string", "minLength": 2, "maxLength": 50},
             "word_context_2": {"type": "string", "minLength": 2, "maxLength": 200},
             "language_id_2": {"type": "number"},
-            "word_difficulty": {"type": "number", "minimum": 1, "maximum": 100}
+            "word_difficulty": {"type": "number", "minimum": 1, "maximum": 100},
+            "library_id": {"type": "number"}
                             },
-        "required": ["word_name_1", "word_context_1", "language_id_1", "word_name_2", "word_context_2", "language_id_2", "word_difficulty"]
+        "required": ["word_name_1", "word_context_1", "language_id_1", "word_name_2", "word_context_2", "language_id_2", "word_difficulty", "library_id"]
     }
 
     @expects_json(schema)
@@ -192,6 +193,12 @@ class AddWords(Resource):
 
         if not language_2:
             return make_response(jsonify(mgs="language 2 not found", code=404), 404)
+
+        library = Library.query.filter_by(library_id=new_word_request["library_id"]).first()
+
+        if not library:
+            return make_response(jsonify(mgs="library not found", code=404), 404)
+        
 
         word_1 = Word(word_name=new_word_request["word_name_1"], word_context=new_word_request.get("word_context_1", None))
         db.session.add(word_1)
@@ -210,8 +217,13 @@ class AddWords(Resource):
         insert_pair_query = f"""INSERT INTO pairs VALUES ((SELECT $node_id FROM Word WHERE word_id = {word_1.word_id}), (SELECT $node_id FROM Word WHERE word_id = {word_2.word_id}), {new_word_request["word_difficulty"]}, 'translation'),
 	       ((SELECT $node_id FROM Word WHERE word_id = {word_2.word_id}), (SELECT $node_id FROM Word WHERE word_id = {word_1.word_id}), {new_word_request["word_difficulty"]}, 'translation');"""
 
+        insert_contains_query_1 = f"""INSERT INTO [dbo].[contains] VALUES ((SELECT $node_id FROM library WHERE library_id = {library.library_id}), (SELECT $node_id FROM word WHERE word_id = {word_1.word_id}));"""
+        insert_contains_query_2 = f"""INSERT INTO [dbo].[contains] VALUES ((SELECT $node_id FROM library WHERE library_id = {library.library_id}), (SELECT $node_id FROM word WHERE word_id = {word_2.word_id}));"""
+
         db.engine.execute(insert_family_query)
         db.engine.execute(insert_pair_query)
+        db.engine.execute(insert_contains_query_1)
+        db.engine.execute(insert_contains_query_2)
         return make_response(jsonify(word_id_1=word_1.word_id, word_id_2=word_2.word_id, msg="Word added", status=201), 201)
 
 class AddLanguages(Resource):

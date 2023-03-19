@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, request
 from flask_expects_json import expects_json
+from flask_marshmallow import Marshmallow
 from flask_restful import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from sqlalchemy import column, text
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.ddl import CreateTable
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -22,7 +24,9 @@ from flask_jwt_extended import (
     JWTManager
 )
 
+
 db = SQLAlchemy()
+ma = Marshmallow()
 appinsights = AppInsights()
 
 from .data import DataContext
@@ -34,6 +38,15 @@ BLOCKLIST = set()
 INVALID_CREDENTIALS = "Invalid credentials!"
 
 from .models import *
+
+
+class LibrarySchema(ma.Schema):
+    class Meta:
+        fields = (
+            "library_id", "library_name")
+
+
+library_schemas = LibrarySchema(many=True)
 
 
 def authenticate(username, password):
@@ -115,9 +128,14 @@ class AllWords(Resource):
 class LibrariesAll(Resource):
     @jwt_required()
     def get(self):
-        libraries = [{"library_id": lib.library_id, "library_name": lib.library_name} for lib in
-                 Library.query.all()]
-        return jsonify(libraries)
+        user_id = get_jwt_identity()
+
+        query = """SELECT library_id, library_name FROM [user], [use], [library] WHERE MATCH([user]-([use])->[library]) AND [user].user_id = :user_id;"""
+
+        query_result = (db.session.query(column("library_id"), column("library_name"))
+                        .from_statement(text(query))
+                        .params(user_id=user_id).all())
+        return library_schemas.dump(query_result)
 
 
 class AddLib(Resource):
@@ -304,6 +322,7 @@ def create_app():
     # https://flask-restful.readthedocs.io/en/latest/quickstart.html
     app = Flask(__name__)
     appinsights.init_app(app)
+    ma.init_app(app)
 
     @app.after_request
     def after_request(response):

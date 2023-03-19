@@ -14,6 +14,7 @@ import os
 from flask import make_response, jsonify
 from jsonschema import ValidationError
 from applicationinsights.flask.ext import AppInsights
+import json
 
 from flask_jwt_extended import (
     create_access_token,
@@ -49,6 +50,15 @@ class LibrarySchema(ma.Schema):
 library_schemas = LibrarySchema(many=True)
 
 
+class WordSchema(ma.Schema):
+    class Meta:
+        fields = (
+            "word_id", "word_name", "word_context")
+
+
+word_schemas = WordSchema(many=True)
+
+
 def authenticate(username, password):
     # user = User.query.filter_by(user_name=username).first()
     user = data_context.get_user_by_user_name(username=username)
@@ -65,29 +75,6 @@ def identity(payload):
         return user
 
 
-# class GamesWordsAssoc(Resource):
-#     @jwt_required()
-#     def get(self):
-#         new_gwa_request = request.json
-#         game_word_assoc = [{"game_word_id": new_gwa_request.game_word_id, "word_id": new_gwa_request.word_id,
-#                             "game_id": new_gwa_request.game_id,
-#                             "success_flag": new_gwa_request.success_flag} for new_gwa_request in
-#                            GameWordAssoc.query.all()]
-#         return jsonify(game_word_assoc)
-#
-#     @jwt_required()
-#     def post(self):
-#         new_gwa_request = request.json
-#         word = Word.query.filter_by(word_name=new_gwa_request["word_name"]).first()
-#         game = Game.query.filter_by(game_name=new_gwa_request["game_name"]).first()
-#         game_word_assoc = GameWordAssoc(word_id=word.word_id, game_id=game.game_id,
-#                                         success_flag=new_gwa_request["success_flag"])
-#         db.session.add(game_word_assoc)
-#         db.session.commit()
-#         game_word_assoc = GameWordAssoc.query.filter_by(success_flag=new_gwa_request["success_flag"]).first()
-#         return jsonify(id=game_word_assoc.game_word_id, msg="Game word association added", status=201)
-
-
 class AllWords(Resource):
     @jwt_required()
     def get(self):
@@ -95,36 +82,7 @@ class AllWords(Resource):
                  Word.query.all()]
         return jsonify(words)
 
-    # schema = {
-    #     "type": "object",
-    #     "properties": {
-    #         "word_name": {"type": "string", "minLength": 2, "maxLength": 50},
-    #         "context": {"type": "string", "minLength": 2, "maxLength": 200},
-    #         "language_name": {"type": "string", "minLength": 2, "maxLength": 50}
-    #     },
-    #     "required": ["word_name", "context", "language_name"]
-    # }
 
-#     @expects_json(schema)
-#     @jwt_required()
-#     def post(self):
-#         new_word_request = request.json
-#         language = Language.query.filter_by(language_name=new_word_request["language_name"]).first()
-#         if not language:
-#             return jsonify(mgs="language not found", code=404)
-#
-#         parent_id = new_word_request.get("parent_word_id", None)
-#         if parent_id:
-#             parent = Word.query.get(parent_id)
-#             parent_id = parent.word_id if parent else None
-#
-#         word = Word(word_name=new_word_request["word_name"], parent_word_id=parent_id,
-#                     language_id=language.language_id, context=new_word_request.get("context", None))
-#         db.session.add(word)
-#         db.session.commit()
-#         word = Word.query.filter_by(word_name=new_word_request["word_name"]).first()
-#         return jsonify(id=word.word_id, msg="Word added", status=201)
-#
 class LibrariesAll(Resource):
     @jwt_required()
     def get(self):
@@ -321,6 +279,7 @@ hashing = Hashing()
 def create_app():
     # https://flask-restful.readthedocs.io/en/latest/quickstart.html
     app = Flask(__name__)
+    app.config.from_file("config.json", load=json.load)
     appinsights.init_app(app)
     ma.init_app(app)
 
@@ -330,14 +289,7 @@ def create_app():
         return response
 
     CORS(app)
-    # app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_NAME}"
-    # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', f"sqlite:///{DB_NAME}").replace("postgres", "postgresql")
-    app.config[
-        #'SQLALCHEMY_DATABASE_URI'] = "mssql+pyodbc://localhost\\SQLEXPRESS/TestDB2?driver=ODBC+Driver+17+for+SQL+Server"
-        #'SQLALCHEMY_DATABASE_URI'] = "mssql+pyodbc://languageapp:Kanapa123@languageapp.database.windows.net/LanguageDB?driver=ODBC+Driver+17+for+SQL+Server"
-        'SQLALCHEMY_DATABASE_URI'] = "mssql+pyodbc://admin-app-dev:chair!9Bag@language-app-dev-server.database.windows.net/LanguageAppDevDB?driver=ODBC+Driver+17+for+SQL+Server"
 
-    app.config["SECRET_KEY"] = "123456789"
     api = Api(app=app)
     jwtmanager = JWTManager(app)
     from .routes import Words, Languages, Users, UserInfo, Echo, Scores, Games

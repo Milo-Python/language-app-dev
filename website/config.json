@@ -1,0 +1,4 @@
+{
+  "SQLALCHEMY_DATABASE_URI": "mssql+pyodbc://admin-app-dev:chair!9Bag@language-app-dev-server.database.windows.net/LanguageAppDevDB?driver=ODBC+Driver+17+for+SQL+Server",
+  "SECRET_KEY": "123456789"
+}

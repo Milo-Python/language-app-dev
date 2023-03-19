@@ -76,11 +76,23 @@ def identity(payload):
 
 
 class AllWords(Resource):
+    # @jwt_required()
+    # def get(self):
+    #     words = [{"word_id": word.word_id, "word_name": word.word_name, "word_context": word.word_context} for word in
+    #              Word.query.all()]
+    #     return jsonify(words)
+
     @jwt_required()
     def get(self):
-        words = [{"word_id": word.word_id, "word_name": word.word_name, "word_context": word.word_context} for word in
-                 Word.query.all()]
-        return jsonify(words)
+        user_id = get_jwt_identity()
+
+        columns = ["word_id", "word_name", "word_context"]
+        query = f"""SELECT {', '.join(columns)} FROM [user], [use], [library], [contains] ,[word] WHERE MATCH([user]-([use])->[library]-([contains])->[word]) AND [user].user_id = :user_id;"""
+
+        query_result = (db.session.query(*list(map(column, columns)))
+                        .from_statement(text(query))
+                        .params(user_id=user_id).all())
+        return word_schemas.dump(query_result)
 
 
 class LibrariesAll(Resource):

@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_expects_json import expects_json
 from flask_marshmallow import Marshmallow
-from flask_restful import Api, Resource
+from flask_restful_swagger_3 import Api, Resource, swagger, Schema, get_swagger_blueprint
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import column, text
@@ -10,10 +10,10 @@ from sqlalchemy.sql.ddl import CreateTable
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
 from flask_hashing import Hashing
-import os
 from flask import make_response, jsonify
 from jsonschema import ValidationError
 from applicationinsights.flask.ext import AppInsights
+
 import json
 
 from flask_jwt_extended import (
@@ -152,6 +152,34 @@ class AddLib(Resource):
         return make_response(jsonify(library_id=library.library_id, library_name=library.library_name, msg="Library added", status=201),
                              201)
 
+class ChangeLib(Resource):
+    schema = {
+        "type": "object",
+        "properties": {
+            "library_name": {"type": "string", "minLength": 2, "maxLength": 50}
+        },
+        "required": ["library_name"]
+    }
+
+    @expects_json(schema)
+    @jwt_required()
+    def put(self, library_id):
+        user_id = get_jwt_identity()
+        new_lib_request = request.json
+
+        library = Library.query.filter_by(library_id=library_id).first()
+
+        if not library:
+            return make_response(jsonify(mgs="library not found", code=404), 404)
+
+        library.library_name = new_lib_request["library_name"]
+        db.session.commit()
+        db.session.flush()
+
+        return make_response(
+            jsonify(library_id=library.library_id, library_name=library.library_name, msg="Library changed", status=201),
+            201)
+
 
 class AddWords(Resource):
 
@@ -230,6 +258,7 @@ class AddLanguages(Resource):
 
     @expects_json(schema)
     @jwt_required()
+    @swagger.tags(["language"])
     def post(self):
 
         new_language_request = request.json
@@ -302,11 +331,12 @@ def create_app():
 
     CORS(app)
 
-    api = Api(app=app)
+    api = Api(app=app, add_api_spec_resource=True, swagger_prefix_url="/api/doc")
     jwtmanager = JWTManager(app)
     from .routes import Words, Languages, Users, UserInfo, Echo, Scores, Games
     api.add_resource(AddWords, "/words/add")
     api.add_resource(AddLib, "/libraries/add")
+    api.add_resource(ChangeLib, "/libraries/change/<int:library_id>")
     api.add_resource(AddLanguages, "/languages/add")
     api.add_resource(LibrariesAll, "/libraries")
     api.add_resource(Words, "/words/<int:id>")
@@ -324,6 +354,16 @@ def create_app():
 
     db.init_app(app)
     migrate.init_app(app=app, db=db)
+
+    SWAGGER_URL = '/api/doc'  # URL for exposing Swagger UI (without trailing '/')
+    API_URL = 'swagger.json'  # Our API url (can of course be a local resource)
+
+    swagger_blueprint = get_swagger_blueprint(
+        api.open_api_object,
+        swagger_prefix_url=SWAGGER_URL,
+        swagger_url=API_URL)
+
+    app.register_blueprint(swagger_blueprint)
 
     # jwt = JWT(app, authenticate, identity)
 

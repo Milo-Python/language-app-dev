@@ -14,7 +14,10 @@ Flask-JWT-Extended==4.2.1
 flask-marshmallow==0.14.0
 Flask-Migrate==3.1.0
 Flask-RESTful==0.3.9
+flask-restful-swagger-3==0.5.1
 Flask-SQLAlchemy==2.5.1
+flask-swagger==0.2.14
+flask-swagger-ui==4.11.1
 greenlet==2.0.1
 idna==3.4
 importlib-metadata==6.0.0
@@ -31,6 +34,7 @@ PyJWT==2.1.0
 pyodbc==4.0.28
 pyrsistent==0.19.3
 pytz==2022.7
+PyYAML==6.0
 requests==2.27.1
 six==1.16.0
 SQLAlchemy==1.4.46

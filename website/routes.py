@@ -1,9 +1,10 @@
 from flask_expects_json import expects_json
-from flask_restful import Resource
 from . import data_context, appinsights
 from flask import jsonify, request
 from flask import make_response
 from flask import current_app as app
+from flask_restful_swagger_3 import Api, Resource, swagger, Schema, get_swagger_blueprint
+from .schemas import EchoModel, WordsModel
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -14,7 +15,9 @@ from flask_jwt_extended import (
 )
 
 
+
 class Echo(Resource):
+    @swagger.reorder_with(EchoModel, description="Returns an echo message", summary="Get Echo")
     def get(self):
         # app.logger.debug('This is a debug log message')
         # app.logger.info('This is an information log message')
@@ -66,6 +69,7 @@ class Users(Resource):
 
 
 class Words(Resource):
+    @swagger.reorder_with(WordsModel, description="Returns an Words message", summary="Get Words")
     @jwt_required()
     def get(self, id):
         word = data_context.get_word_by_id(id)

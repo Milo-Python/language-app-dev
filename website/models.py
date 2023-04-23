@@ -10,7 +10,7 @@ from sqlalchemy import func, UniqueConstraint
 class Word(db.Model):
     word_id = db.Column(db.Integer, primary_key=True)
     word_name = db.Column(db.String(50))
-    word_context=db.Column(db.String(150))
+    word_context = db.Column(db.String(150))
 
 
 class Language(db.Model):

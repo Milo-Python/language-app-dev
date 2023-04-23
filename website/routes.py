@@ -79,16 +79,6 @@ class Words(Resource):
         else:
             return jsonify(status=404, msg="Word does not exits.")
 
-    def put(self, id):
-        #word = Word.query.get(id)
-        word = data_context.get_word_by_id(id)
-        if not word:
-            return jsonify(status=404, msg="Word does not exits.")
-        word.word_name = request.form["name"]
-        #db.session.commit()
-        data_context.db_commit()
-        return jsonify(word_id=word.word_id,
-                       word_name=word.word_name)
 
     def delete(self, id):
         #word = Word.query.get(id)
@@ -120,6 +110,20 @@ class Languages(Resource):
         language = data_context.add_language(language_code=new_language_request["language_code"],
                                              language_name=new_language_request["language_name"])
         return jsonify(id=language.language_id, msg="Language added", status=201)
+
+class ChangeLanguages:
+    @jwt_required()
+
+    def put(self, id):
+        #word = Word.query.get(id)
+        word = data_context.get_word_by_id(id)
+        if not word:
+            return jsonify(status=404, msg="Word does not exits.")
+        word.word_name = request.form["name"]
+        #db.session.commit()
+        data_context.db_commit()
+        return jsonify(word_id=word.word_id,
+                       word_name=word.word_name)
 
 
 class Scores(Resource):

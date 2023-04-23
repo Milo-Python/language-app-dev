@@ -245,6 +245,70 @@ class AddWords(Resource):
         db.engine.execute(insert_contains_query_2)
         return make_response(jsonify(word_id_1=word_1.word_id, word_id_2=word_2.word_id, msg="Word added", status=201), 201)
 
+
+class ChangeWords(Resource):
+    schema = {
+        "type": "object",
+        "properties": {
+            "word_name": {"type": "string", "minLength": 2, "maxLength": 50},
+            "word_context": {"type": "string", "minLength": 2, "maxLength": 200}
+        },
+        "required": ["word_name", "word_context"]
+    }
+
+    @expects_json(schema)
+    @jwt_required()
+    def put(self, word_id):
+        user_id = get_jwt_identity()
+        new_word_request = request.json
+
+        word = Word.query.filter_by(word_id=word_id).first()
+
+        if not word:
+            return make_response(jsonify(mgs="word not found", code=404), 404)
+
+        word.word_name = new_word_request["word_name"]
+        word.word_context = new_word_request["word_context"]
+        db.session.commit()
+        db.session.flush()
+
+        return make_response(
+            jsonify(word_id=word.word_id, word_name=word.word_name, word_context=word.word_context, msg="word changed",
+                    status=201),
+            201)
+
+class ChangeLanguages(Resource):
+    schema = {
+        "type": "object",
+        "properties": {
+            "language_code": {"type": "string", "minLength": 2, "maxLength": 50},
+            "language_name": {"type": "string", "minLength": 2, "maxLength": 200}
+        },
+        "required": ["language_code", "language_name"]
+    }
+
+    @expects_json(schema)
+    @jwt_required()
+    def put(self, language_id):
+        # user_id = get_jwt_identity()
+        new_language_request = request.json
+
+        language = Language.query.filter_by(language_id=language_id).first()
+
+        if not language:
+            return make_response(jsonify(mgs="language not found", code=404), 404)
+
+        language.language_code = new_language_request["language_code"]
+        language.language_name = new_language_request["language_name"]
+        db.session.commit()
+        db.session.flush()
+
+        return make_response(
+            jsonify(language_id=language.language_id, language_code=language.language_code, language_name=language.language_name, msg="language changed",
+                    status=201),
+            201)
+
+
 class AddLanguages(Resource):
 
     schema = {
@@ -340,8 +404,10 @@ def create_app():
     api.add_resource(AddLanguages, "/languages/add")
     api.add_resource(LibrariesAll, "/libraries")
     api.add_resource(Words, "/words/<int:id>")
+    api.add_resource(ChangeWords, "/words/change/<int:word_id>")
     api.add_resource(AllWords, "/words")
     api.add_resource(Languages, "/languages")
+    api.add_resource(ChangeLanguages, "/languages/change/<int:language_id>")
     api.add_resource(Scores, "/scores")
     # api.add_resource(GamesWordsAssoc, "/games-words-assoc")
     api.add_resource(Games, "/games")

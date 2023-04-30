@@ -308,6 +308,35 @@ class ChangeLanguages(Resource):
                     status=201),
             201)
 
+class ChangeUsers(Resource):
+    schema = {
+        "type": "object",
+        "properties": {
+            "user_name": {"type": "string", "minLength": 2, "maxLength": 200}
+        },
+        "required": ["user_name"]
+    }
+
+    @expects_json(schema)
+    @jwt_required()
+    def put(self, user_id):
+        new_user_request = request.json
+
+        user = User.query.filter_by(user_id=user_id).first()
+
+        if not user:
+            return make_response(jsonify(mgs="user not found", code=404), 404)
+
+        user.user_name = new_user_request["user_name"]
+        db.session.commit()
+        db.session.flush()
+
+        return make_response(
+            jsonify(user_id=user.user_id,
+                    user_name=user.user_name, msg="user changed",
+                    status=201),
+            201)
+
 
 class AddLanguages(Resource):
 
@@ -413,6 +442,7 @@ def create_app():
     api.add_resource(Games, "/games")
     api.add_resource(Users, "/users")
     api.add_resource(UserInfo, "/users/<int:id>")
+    api.add_resource(ChangeUsers, "/users/change/<int:user_id>")
     api.add_resource(Echo, "/echo")
     api.add_resource(UserLogout, "/logout")
     api.add_resource(TokenRefresh, "/refresh")

@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="52662d75-ac15-47fb-8bb0-f263711d44a0" name="Default Changelist" comment="App insights">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/website/__init__.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -180,27 +181,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1629042576709</updated>
-    </task>
-    <task id="LOCAL-00001" summary="20-02-2022 global commit">
-      <created>1645376754103</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1645376754103</updated>
-    </task>
-    <task id="LOCAL-00002" summary="20-02-2022 fasada + refleksja p1">
-      <created>1645384347196</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1645384347196</updated>
-    </task>
-    <task id="LOCAL-00003" summary="heroku init">
-      <created>1648403765716</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1648403765716</updated>
     </task>
     <task id="LOCAL-00004" summary="heroku init">
       <created>1648404854091</created>
@@ -475,7 +455,77 @@
       <option name="project" value="LOCAL" />
       <updated>1676213169847</updated>
     </task>
-    <option name="localTasksCounter" value="43" />
+    <task id="LOCAL-00043" summary="insert_language_query Romove double">
+      <created>1676821779911</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1676821779911</updated>
+    </task>
+    <task id="LOCAL-00044" summary="insert_language_query Remove double">
+      <created>1676821821249</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1676821821249</updated>
+    </task>
+    <task id="LOCAL-00045" summary="Added &quot;containes&quot; capability">
+      <created>1677422972493</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1677422972493</updated>
+    </task>
+    <task id="LOCAL-00046" summary="Library id 404 info">
+      <created>1677423959574</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1677423959574</updated>
+    </task>
+    <task id="LOCAL-00047" summary="Filtering libraries by user">
+      <created>1679226752296</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1679226752297</updated>
+    </task>
+    <task id="LOCAL-00048" summary="Remove comments, remove config">
+      <created>1679229179922</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1679229179922</updated>
+    </task>
+    <task id="LOCAL-00049" summary="Words per user">
+      <created>1679230043470</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1679230043470</updated>
+    </task>
+    <task id="LOCAL-00050" summary="PUT functionality in lib">
+      <created>1681650500350</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1681650500350</updated>
+    </task>
+    <task id="LOCAL-00051" summary="Routes">
+      <created>1681650526445</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1681650526445</updated>
+    </task>
+    <task id="LOCAL-00052" summary="languages/change">
+      <created>1682257851645</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1682257851645</updated>
+    </task>
+    <option name="localTasksCounter" value="53" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -491,16 +541,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="python version fix" />
-    <MESSAGE value="jwt fix" />
-    <MESSAGE value="Missing input parameters 400 Bad Request" />
-    <MESSAGE value="Context in Word GET" />
-    <MESSAGE value="additional unit test" />
-    <MESSAGE value="register validation json body" />
-    <MESSAGE value="user validation" />
-    <MESSAGE value="Graph Database" />
-    <MESSAGE value="migrations upgade" />
-    <MESSAGE value="migrations upgrade" />
     <MESSAGE value="heroku docker" />
     <MESSAGE value="word chg" />
     <MESSAGE value="word_context fix" />
@@ -516,7 +556,17 @@
     <MESSAGE value="port change" />
     <MESSAGE value="AddLanguages remove  comment" />
     <MESSAGE value="App insights" />
-    <option name="LAST_COMMIT_MESSAGE" value="App insights" />
+    <MESSAGE value="insert_language_query Romove double" />
+    <MESSAGE value="insert_language_query Remove double" />
+    <MESSAGE value="Added &quot;containes&quot; capability" />
+    <MESSAGE value="Library id 404 info" />
+    <MESSAGE value="Filtering libraries by user" />
+    <MESSAGE value="Remove comments, remove config" />
+    <MESSAGE value="Words per user" />
+    <MESSAGE value="PUT functionality in lib" />
+    <MESSAGE value="Routes" />
+    <MESSAGE value="languages/change" />
+    <option name="LAST_COMMIT_MESSAGE" value="languages/change" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

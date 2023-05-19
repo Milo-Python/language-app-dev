@@ -302,6 +302,45 @@ class ChangeWords(Resource):
                     status=201),
             201)
 
+class DeleteWords(Resource):
+    @jwt_required()
+    def delete(self, word_id):
+
+        word = Word.query.filter_by(word_id=word_id).first()
+
+        if not word:
+            return make_response(jsonify(mgs="word not found", code=404), 404)
+
+        select_contains_id_1 = f"""SELECT [dbo].[contains].[contains_id] FROM [dbo].[library] , [dbo].[use] , [dbo].[user] , [dbo].[contains], [dbo].[word] WHERE MATCH ([user]-([use])->[library]-([contains])->[word]) AND [word].word_id = {word_id}"""
+        contains_id_1 = db.engine.execute(select_contains_id_1).fetchone()[0]
+        select_contains_id_2 = f"""SELECT [dbo].[contains].[contains_id] FROM [dbo].[library] , [dbo].[use] , [dbo].[user] , [dbo].[contains], [dbo].[word] WHERE MATCH ([user]-([use])->[library]-([contains])->[word]) AND [word].word_id in (select word_2.word_id FROM [dbo].[pairs] , dbo.[word] as word_1, dbo.[word] as word_2 WHERE MATCH (word_1-([pairs])->word_2) AND word_1.word_id = {word_id})"""
+        contains_id_2 = db.engine.execute(select_contains_id_2).fetchone()[0]
+        select_word_id_2 = f"""SELECT word_2.word_id FROM [dbo].[pairs], dbo.[word] as word_1, dbo.[word] as word_2 WHERE MATCH(word_1 - ([pairs])->word_2) AND word_1.word_id = {word_id}"""
+        word_id_2 = db.engine.execute(select_word_id_2).fetchone()[0]
+        select_pair_id_1 = f"""SELECT [dbo].[pairs].pair_id FROM [dbo].[pairs], dbo.[word] as word_1, dbo.[word] as word_2 WHERE MATCH(word_1 - ([pairs])->word_2) AND word_1.word_id = {word_id}"""
+        pair_id_1 = db.engine.execute(select_pair_id_1).fetchone()[0]
+        select_pair_id_2 = f"""SELECT [dbo].[pairs].pair_id FROM [dbo].[pairs], dbo.[word] as word_1, dbo.[word] as word_2 WHERE MATCH(word_1 - ([pairs])->word_2) AND word_1.word_id = {word_id_2}"""
+        pair_id_2 = db.engine.execute(select_pair_id_2).fetchone()[0]
+
+        delete_contains_id_1 = f"""delete from [dbo].[contains] where contains_id = {contains_id_1}"""
+        db.engine.execute(delete_contains_id_1)
+        delete_contains_id_2 = f"""delete from [dbo].[contains] where contains_id = {contains_id_2}"""
+        db.engine.execute(delete_contains_id_2)
+        delete_pair_id_1 = f"""delete from [dbo].[pairs] where pair_id = {pair_id_1}"""
+        db.engine.execute(delete_pair_id_1)
+        delete_pair_id_2 = f"""delete from [dbo].[pairs] where pair_id = {pair_id_2}"""
+        db.engine.execute(delete_pair_id_2)
+        delete_word_id_1 = f"""delete from [dbo].[word] where word_id = {word_id}"""
+        db.engine.execute(delete_word_id_1)
+        delete_word_id_2 = f"""delete from [dbo].[word] where word_id = {word_id_2}"""
+        db.engine.execute(delete_word_id_2)
+
+        db.session.commit()
+        db.session.flush()
+
+        return make_response(
+            jsonify(word_id=word_id, msg="Word deleted", status=201), 201)
+
 class ChangeLanguages(Resource):
     schema = {
         "type": "object",
@@ -453,6 +492,7 @@ def create_app():
     jwtmanager = JWTManager(app)
     from .routes import Words, Languages, Users, UserInfo, Echo, Scores, Games
     api.add_resource(AddWords, "/words/add")
+    api.add_resource(DeleteWords, "/words/delete/<int:word_id>")
     api.add_resource(AddLib, "/libraries/add")
     api.add_resource(ChangeLib, "/libraries/change/<int:library_id>")
     api.add_resource(DeleteLib, "/libraries/delete/<int:library_id>")

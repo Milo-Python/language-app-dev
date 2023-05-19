@@ -180,6 +180,31 @@ class ChangeLib(Resource):
             jsonify(library_id=library.library_id, library_name=library.library_name, msg="Library changed", status=201),
             201)
 
+class DeleteLib(Resource):
+    @jwt_required()
+    def delete(self, library_id):
+        # user_id = get_jwt_identity()
+
+        library = Library.query.filter_by(library_id=library_id).first()
+
+        if not library:
+            return make_response(jsonify(mgs="library not found", code=404), 404)
+
+        select_use_id = f"""select [use].use_id FROM [dbo].[library] , [dbo].[use] , [dbo].[user] WHERE MATCH ([user]-([use])->[library]) AND [library].library_id = {library_id}"""
+        use_id = db.engine.execute(select_use_id).fetchone()[0]
+        delete_use_id = f"""delete from dbo.[use] where use_id = {use_id}"""
+        db.engine.execute(delete_use_id)
+        delete_library_id = f"""delete from dbo.[library] where library_id = {library_id}"""
+        db.engine.execute(delete_library_id)
+
+        # library.delete()
+        db.session.commit()
+        db.session.flush()
+
+
+        return make_response(
+            jsonify(library_id=library_id, msg="Library deleted", status=201), 201)
+
 
 class AddWords(Resource):
 
@@ -430,6 +455,7 @@ def create_app():
     api.add_resource(AddWords, "/words/add")
     api.add_resource(AddLib, "/libraries/add")
     api.add_resource(ChangeLib, "/libraries/change/<int:library_id>")
+    api.add_resource(DeleteLib, "/libraries/delete/<int:library_id>")
     api.add_resource(AddLanguages, "/languages/add")
     api.add_resource(LibrariesAll, "/libraries")
     api.add_resource(Words, "/words/<int:id>")

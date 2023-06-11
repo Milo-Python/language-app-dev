@@ -430,6 +430,67 @@ class AddLanguages(Resource):
         # db.engine.execute(insert_language_query)
         return make_response(jsonify(language_id=language.language_id, language_name=language.language_name, msg="Language added", status=201), 201)
 
+class AddRole(Resource):
+    schema = {
+        "type": "object",
+        "properties": {
+            "role_name": {"type": "string", "minLength": 3, "maxLength": 50},
+            "role_description": {"type": "string", "minLength": 3, "maxLength": 100}
+        },
+        "required": ["role_name", "role_description"]
+    }
+
+    @expects_json(schema)
+    @jwt_required()
+    @swagger.tags(["role"])
+    def post(self):
+        new_role_request = request.json
+
+        role = Role(role_name=new_role_request["role_name"],
+                            role_description=new_role_request["role_description"])
+        db.session.add(role)
+
+        db.session.commit()
+        db.session.flush()
+
+        # insert_language_query = f"""INSERT INTO language VALUES ('{language.language_code}', '{language.language_name}');"""
+        # db.engine.execute(insert_language_query)
+        return make_response(
+            jsonify(role_name=role.role_name, role_description=role.role_description, msg="Role added",
+                    status=201), 201)
+
+class AttachRole(Resource):
+    schema = {
+        "type": "object",
+        "properties": {
+            "user_id": {"type": "number"},
+            "role_id": {"type": "number"}
+        },
+        "required": ["user_id", "role_id"]
+    }
+
+    @expects_json(schema)
+    @jwt_required()
+    def post(self):
+        # user_id = get_jwt_identity()
+        new_have_request = request.json
+
+        user = User.query.filter_by(user_id=new_have_request["user_id"]).first()
+        role = Role.query.filter_by(role_id=new_have_request["role_id"]).first()
+
+        if not user:
+            return make_response(jsonify(mgs="user not found", code=404), 404)
+
+        if not role:
+            return make_response(jsonify(mgs="role not found", code=404), 404)
+
+        attach = f"""INSERT INTO[dbo].[have] VALUES( (SELECT $node_id FROM[dbo].[user] where user_id = {user.user_id}), (SELECT $node_id FROM[dbo].[role] where role_id = {role.role_id}), GETDATE());"""
+
+        db.engine.execute(attach)
+
+        return make_response(jsonify(user_id=user.user_id, role_id=role.role_id, msg="Role attached", status=201),
+                             201)
+
 
 class UserLogout(Resource):
     @jwt_required()
@@ -496,6 +557,8 @@ def create_app():
     api.add_resource(AddLib, "/libraries/add")
     api.add_resource(ChangeLib, "/libraries/change/<int:library_id>")
     api.add_resource(DeleteLib, "/libraries/delete/<int:library_id>")
+    api.add_resource(AddRole, "/role/add")
+    api.add_resource(AttachRole, "/attach-role")
     api.add_resource(AddLanguages, "/languages/add")
     api.add_resource(LibrariesAll, "/libraries")
     api.add_resource(Words, "/words/<int:id>")
@@ -552,10 +615,44 @@ def create_app():
 
     @compiles(CreateTable)
     def create_as_node(create_table, compiler, **kw):
-        if create_table.element.name in ["word", "language", "library", "user"]:
+        if create_table.element.name in ["word", "language", "library", "user", "role"]:
             compiler.post_create_table = lambda x: ' AS NODE'
-        elif create_table.element.name in ["pairs", "family", "contains", "play", "use", "relation", "translation"]:
+        elif create_table.element.name in ["pairs", "family", "contains", "play", "use", "relation", "translation", "have"]:
             compiler.post_create_table = lambda x: ' AS EDGE'
         return compiler.visit_create_table(create_table, **kw)
+
+    try:
+        with app.app_context():
+            roles = {"admin":  "application owner", "user": "application user"}
+            for role, description in roles.items():
+               if not Role.query.filter_by(role_name=role).first():
+                    print(f"Do not exists role with {role} name")
+
+                    role = Role(role_name=role,
+                                role_description=description)
+                    db.session.add(role)
+
+                    db.session.commit()
+                    db.session.flush()
+               else:
+                    print(f"Role with {role} name already exists ")
+
+            users = [{"user_name": "superuser", "user_email": "superuser@wp.pl", "user_password": "1234567" }]
+            for user in users:
+                if not data_context.get_user_by_user_name(user["user_name"]):
+                    print(f"Do not exists user with {user} name")
+                    user = data_context.create_user(user["user_name"], user["user_email"], user["user_password"])
+
+                    role = Role.query.filter_by(role_name="admin").first()
+
+                    attach = f"""INSERT INTO[dbo].[have] VALUES( (SELECT $node_id FROM[dbo].[user] where user_id = {user.user_id}), (SELECT $node_id FROM[dbo].[role] where role_id = {role.role_id}), GETDATE());"""
+
+                    db.engine.execute(attach)
+
+
+
+    except Exception as e:
+        print(e)
+
 
     return app

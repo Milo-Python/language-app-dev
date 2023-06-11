@@ -32,6 +32,14 @@ class User(db.Model):
     user_password = db.Column(db.String(100))
     user_password_salt = db.Column(db.String(100))
 
+class Role(db.Model):
+    role_id = db.Column(db.Integer, primary_key=True)
+    role_name = db.Column(db.String(50))
+    role_description = db.Column(db.String(100))
+
+class Have(db.Model):
+    have_id = db.Column(db.Integer, primary_key=True)
+    have_date = db.Column(db.DateTime)
 
 class Pairs(db.Model):
     pair_id = db.Column(db.Integer, primary_key=True)

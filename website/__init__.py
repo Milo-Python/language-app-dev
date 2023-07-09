@@ -25,7 +25,6 @@ from flask_jwt_extended import (
     JWTManager
 )
 
-
 db = SQLAlchemy()
 ma = Marshmallow()
 appinsights = AppInsights()
@@ -109,15 +108,14 @@ class LibrariesAll(Resource):
 
 
 class AddLib(Resource):
-
     schema = {
-        "type" : "object",
-        "properties" : {
-            "library_name" : {"type" : "string", "minLength" : 2, "maxLength" : 50},
-            "language_id_1": {"type" : "number"},
+        "type": "object",
+        "properties": {
+            "library_name": {"type": "string", "minLength": 2, "maxLength": 50},
+            "language_id_1": {"type": "number"},
             "language_id_2": {"type": "number"}
         },
-        "required" : ["library_name", "language_id_1", "language_id_2"]
+        "required": ["library_name", "language_id_1", "language_id_2"]
     }
 
     @expects_json(schema)
@@ -149,8 +147,10 @@ class AddLib(Resource):
         db.engine.execute(insert_language_pair_query)
         db.engine.execute(insert_user_query)
 
-        return make_response(jsonify(library_id=library.library_id, library_name=library.library_name, msg="Library added", status=201),
-                             201)
+        return make_response(
+            jsonify(library_id=library.library_id, library_name=library.library_name, msg="Library added", status=201),
+            201)
+
 
 class ChangeLib(Resource):
     schema = {
@@ -177,8 +177,10 @@ class ChangeLib(Resource):
         db.session.flush()
 
         return make_response(
-            jsonify(library_id=library.library_id, library_name=library.library_name, msg="Library changed", status=201),
+            jsonify(library_id=library.library_id, library_name=library.library_name, msg="Library changed",
+                    status=201),
             201)
+
 
 class DeleteLib(Resource):
     @jwt_required()
@@ -201,13 +203,11 @@ class DeleteLib(Resource):
         db.session.commit()
         db.session.flush()
 
-
         return make_response(
             jsonify(library_id=library_id, msg="Library deleted", status=201), 201)
 
 
 class AddWords(Resource):
-
     schema = {
         "type": "object",
         "properties": {
@@ -219,8 +219,9 @@ class AddWords(Resource):
             "language_id_2": {"type": "number"},
             "word_difficulty": {"type": "number", "minimum": 1, "maximum": 100},
             "library_id": {"type": "number"}
-                            },
-        "required": ["word_name_1", "word_context_1", "language_id_1", "word_name_2", "word_context_2", "language_id_2", "word_difficulty", "library_id"]
+        },
+        "required": ["word_name_1", "word_context_1", "language_id_1", "word_name_2", "word_context_2", "language_id_2",
+                     "word_difficulty", "library_id"]
     }
 
     @expects_json(schema)
@@ -242,9 +243,9 @@ class AddWords(Resource):
 
         if not library:
             return make_response(jsonify(mgs=f"library not found: {new_word_request['library_id']}", code=404), 404)
-        
 
-        word_1 = Word(word_name=new_word_request["word_name_1"], word_context=new_word_request.get("word_context_1", None))
+        word_1 = Word(word_name=new_word_request["word_name_1"],
+                      word_context=new_word_request.get("word_context_1", None))
         db.session.add(word_1)
 
         word_2 = Word(word_name=new_word_request["word_name_2"],
@@ -268,7 +269,8 @@ class AddWords(Resource):
         db.engine.execute(insert_pair_query)
         db.engine.execute(insert_contains_query_1)
         db.engine.execute(insert_contains_query_2)
-        return make_response(jsonify(word_id_1=word_1.word_id, word_id_2=word_2.word_id, msg="Word added", status=201), 201)
+        return make_response(jsonify(word_id_1=word_1.word_id, word_id_2=word_2.word_id, msg="Word added", status=201),
+                             201)
 
 
 class ChangeWords(Resource):
@@ -302,10 +304,10 @@ class ChangeWords(Resource):
                     status=201),
             201)
 
+
 class DeleteWords(Resource):
     @jwt_required()
     def delete(self, word_id):
-
         word = Word.query.filter_by(word_id=word_id).first()
 
         if not word:
@@ -341,6 +343,7 @@ class DeleteWords(Resource):
         return make_response(
             jsonify(word_id=word_id, msg="Word deleted", status=201), 201)
 
+
 class ChangeLanguages(Resource):
     schema = {
         "type": "object",
@@ -368,9 +371,11 @@ class ChangeLanguages(Resource):
         db.session.flush()
 
         return make_response(
-            jsonify(language_id=language.language_id, language_code=language.language_code, language_name=language.language_name, msg="language changed",
+            jsonify(language_id=language.language_id, language_code=language.language_code,
+                    language_name=language.language_name, msg="language changed",
                     status=201),
             201)
+
 
 class ChangeUsers(Resource):
     schema = {
@@ -403,13 +408,12 @@ class ChangeUsers(Resource):
 
 
 class AddLanguages(Resource):
-
     schema = {
         "type": "object",
         "properties": {
             "language_code": {"type": "string", "minLength": 3, "maxLength": 3},
             "language_name": {"type": "string", "minLength": 3, "maxLength": 50}
-                            },
+        },
         "required": ["language_code", "language_name"]
     }
 
@@ -417,10 +421,10 @@ class AddLanguages(Resource):
     @jwt_required()
     @swagger.tags(["language"])
     def post(self):
-
         new_language_request = request.json
 
-        language = Language(language_code=new_language_request["language_code"], language_name=new_language_request["language_name"])
+        language = Language(language_code=new_language_request["language_code"],
+                            language_name=new_language_request["language_name"])
         db.session.add(language)
 
         db.session.commit()
@@ -428,7 +432,10 @@ class AddLanguages(Resource):
 
         # insert_language_query = f"""INSERT INTO language VALUES ('{language.language_code}', '{language.language_name}');"""
         # db.engine.execute(insert_language_query)
-        return make_response(jsonify(language_id=language.language_id, language_name=language.language_name, msg="Language added", status=201), 201)
+        return make_response(
+            jsonify(language_id=language.language_id, language_name=language.language_name, msg="Language added",
+                    status=201), 201)
+
 
 class AddRole(Resource):
     schema = {
@@ -444,10 +451,18 @@ class AddRole(Resource):
     @jwt_required()
     @swagger.tags(["role"])
     def post(self):
+        user_id = get_jwt_identity()
         new_role_request = request.json
 
+        role_name = f"""select[role].role_name FROM[dbo].[user], [dbo].[have], [dbo].[role] WHERE MATCH([user] - ([have])->[role]) AND [user].user_id = {user_id} and [role].role_name = 'admin'"""
+
+        role_result = db.engine.execute(role_name).fetchone()
+
+        if not role_result:
+            return make_response(jsonify(mgs="You have no permissions to add role", code=401), 401)
+
         role = Role(role_name=new_role_request["role_name"],
-                            role_description=new_role_request["role_description"])
+                    role_description=new_role_request["role_description"])
         db.session.add(role)
 
         db.session.commit()
@@ -458,6 +473,20 @@ class AddRole(Resource):
         return make_response(
             jsonify(role_name=role.role_name, role_description=role.role_description, msg="Role added",
                     status=201), 201)
+
+
+class FileUpload(Resource):
+    # @jwt_required()
+    def post(self):
+        #  user_id = get_jwt_identity()
+        #  new_have_request = request.json
+
+        # user = User.query.filter_by(user_id=new_have_request["user_id"]).first()
+        # role = Role.query.filter_by(role_id=new_have_request["role_id"]).first()
+        print(request.files)
+        return make_response(jsonify(msg="File added", status=201),
+                             201)
+
 
 class AttachRole(Resource):
     schema = {
@@ -472,11 +501,18 @@ class AttachRole(Resource):
     @expects_json(schema)
     @jwt_required()
     def post(self):
-        # user_id = get_jwt_identity()
+        user_id = get_jwt_identity()
         new_have_request = request.json
 
         user = User.query.filter_by(user_id=new_have_request["user_id"]).first()
         role = Role.query.filter_by(role_id=new_have_request["role_id"]).first()
+
+        role_name = f"""select[role].role_name FROM[dbo].[user], [dbo].[have], [dbo].[role] WHERE MATCH([user] - ([have])->[role]) AND [user].user_id = {user_id} and [role].role_name = 'admin'"""
+
+        role_result = db.engine.execute(role_name).fetchone()
+
+        if not role_result:
+            return make_response(jsonify(mgs="You have no permissions to change role", code=401), 401)
 
         if not user:
             return make_response(jsonify(mgs="user not found", code=404), 404)
@@ -576,6 +612,16 @@ def create_app():
     api.add_resource(UserLogout, "/logout")
     api.add_resource(TokenRefresh, "/refresh")
     api.add_resource(UserLogin, "/login")
+    api.add_resource(FileUpload, "/file_upload")
+
+    # @app.route("/file_upload", methods=["POST"])
+    # def upload():
+    #     # print(request.form)
+    #     #print(request.json)
+    #     print(request.files)
+    #     #print(request.data)
+    #
+    #     return "ok"
 
     db.init_app(app)
     migrate.init_app(app=app, db=db)
@@ -617,15 +663,16 @@ def create_app():
     def create_as_node(create_table, compiler, **kw):
         if create_table.element.name in ["word", "language", "library", "user", "role"]:
             compiler.post_create_table = lambda x: ' AS NODE'
-        elif create_table.element.name in ["pairs", "family", "contains", "play", "use", "relation", "translation", "have"]:
+        elif create_table.element.name in ["pairs", "family", "contains", "play", "use", "relation", "translation",
+                                           "have"]:
             compiler.post_create_table = lambda x: ' AS EDGE'
         return compiler.visit_create_table(create_table, **kw)
 
     try:
         with app.app_context():
-            roles = {"admin":  "application owner", "user": "application user"}
+            roles = {"admin": "application owner", "user": "application user"}
             for role, description in roles.items():
-               if not Role.query.filter_by(role_name=role).first():
+                if not Role.query.filter_by(role_name=role).first():
                     print(f"Do not exists role with {role} name")
 
                     role = Role(role_name=role,
@@ -634,10 +681,10 @@ def create_app():
 
                     db.session.commit()
                     db.session.flush()
-               else:
+                else:
                     print(f"Role with {role} name already exists ")
 
-            users = [{"user_name": "superuser", "user_email": "superuser@wp.pl", "user_password": "1234567" }]
+            users = [{"user_name": "superuser", "user_email": "superuser@wp.pl", "user_password": "1234567"}]
             for user in users:
                 if not data_context.get_user_by_user_name(user["user_name"]):
                     print(f"Do not exists user with {user} name")
@@ -653,6 +700,5 @@ def create_app():
 
     except Exception as e:
         print(e)
-
 
     return app

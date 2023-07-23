@@ -13,6 +13,9 @@ from flask_hashing import Hashing
 from flask import make_response, jsonify
 from jsonschema import ValidationError
 from applicationinsights.flask.ext import AppInsights
+import pandas as pd
+import base64
+import io
 
 import json
 
@@ -483,7 +486,44 @@ class FileUpload(Resource):
 
         # user = User.query.filter_by(user_id=new_have_request["user_id"]).first()
         # role = Role.query.filter_by(role_id=new_have_request["role_id"]).first()
-        print(request.files)
+
+        data = request.data
+        file_content = base64.b64decode(data.decode("utf-8").split("base64,")[1])
+
+        df = pd.read_excel(io.BytesIO(file_content))
+        for i, row in df.iterrows():
+            word_name_1 = row["Word_1"]
+            word_name_2 = row["Word_2"]
+            word_context_1 = row["Description_1"]
+            word_context_2 = row["Description_2"]
+
+            word_1 = Word(word_name=word_name_1,
+                          word_context=word_context_1)
+            db.session.add(word_1)
+
+            word_2 = Word(word_name=word_name_2,
+                          word_context=word_context_2)
+            db.session.add(word_2)
+
+            db.session.commit()
+            db.session.flush()
+            insert_family_query = f"""INSERT INTO family VALUES ((SELECT $node_id FROM Word WHERE word_id = {word_1.word_id}), (SELECT $node_id FROM [Language] WHERE language_id = 1)),
+                       ((SELECT $node_id FROM [Language] WHERE language_id = 1), (SELECT $node_id FROM Word WHERE word_id = {word_1.word_id})),
+                       ((SELECT $node_id FROM Word WHERE word_id = {word_2.word_id}), (SELECT $node_id FROM Language WHERE language_id = 2)),
+                       ((SELECT $node_id FROM [Language] WHERE language_id = 2), (SELECT $node_id FROM [Word] WHERE word_id = {word_2.word_id}));"""
+
+            insert_pair_query = f"""INSERT INTO pairs VALUES ((SELECT $node_id FROM Word WHERE word_id = {word_1.word_id}), (SELECT $node_id FROM Word WHERE word_id = {word_2.word_id}), 1, 'translation'),
+                       ((SELECT $node_id FROM Word WHERE word_id = {word_2.word_id}), (SELECT $node_id FROM Word WHERE word_id = {word_1.word_id}), 1, 'translation');"""
+
+            insert_contains_query_1 = f"""INSERT INTO [dbo].[contains] VALUES ((SELECT $node_id FROM library WHERE library_id = 1), (SELECT $node_id FROM word WHERE word_id = {word_1.word_id}));"""
+            insert_contains_query_2 = f"""INSERT INTO [dbo].[contains] VALUES ((SELECT $node_id FROM library WHERE library_id = 1), (SELECT $node_id FROM word WHERE word_id = {word_2.word_id}));"""
+
+            db.engine.execute(insert_family_query)
+            db.engine.execute(insert_pair_query)
+            db.engine.execute(insert_contains_query_1)
+            db.engine.execute(insert_contains_query_2)
+
+
         return make_response(jsonify(msg="File added", status=201),
                              201)
 

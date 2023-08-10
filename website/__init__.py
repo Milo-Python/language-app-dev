@@ -487,6 +487,14 @@ class FileUpload(Resource):
         # user = User.query.filter_by(user_id=new_have_request["user_id"]).first()
         # role = Role.query.filter_by(role_id=new_have_request["role_id"]).first()
 
+        library_id = request.headers.get("library_id")
+        if not library_id:
+            return make_response(jsonify(msg="Library id is required", status=400), 400)
+
+        library = Library.query.filter_by(id=library_id).first()
+        if not library:
+            return make_response(jsonify(msg=f"Library not found, id {library_id}", status=404), 404)
+
         try:
             data = request.data
             file_content = base64.b64decode(data.decode("utf-8").split("base64,")[1])
@@ -516,8 +524,8 @@ class FileUpload(Resource):
                 insert_pair_query = f"""INSERT INTO pairs VALUES ((SELECT $node_id FROM Word WHERE word_id = {word_1.word_id}), (SELECT $node_id FROM Word WHERE word_id = {word_2.word_id}), 1, 'translation'),
                            ((SELECT $node_id FROM Word WHERE word_id = {word_2.word_id}), (SELECT $node_id FROM Word WHERE word_id = {word_1.word_id}), 1, 'translation');"""
 
-                insert_contains_query_1 = f"""INSERT INTO [dbo].[contains] VALUES ((SELECT $node_id FROM library WHERE library_id = 1), (SELECT $node_id FROM word WHERE word_id = {word_1.word_id}));"""
-                insert_contains_query_2 = f"""INSERT INTO [dbo].[contains] VALUES ((SELECT $node_id FROM library WHERE library_id = 1), (SELECT $node_id FROM word WHERE word_id = {word_2.word_id}));"""
+                insert_contains_query_1 = f"""INSERT INTO [dbo].[contains] VALUES ((SELECT $node_id FROM library WHERE library_id = {library_id}), (SELECT $node_id FROM word WHERE word_id = {word_1.word_id}));"""
+                insert_contains_query_2 = f"""INSERT INTO [dbo].[contains] VALUES ((SELECT $node_id FROM library WHERE library_id = {library_id}), (SELECT $node_id FROM word WHERE word_id = {word_2.word_id}));"""
 
                 db.engine.execute(insert_family_query)
                 db.engine.execute(insert_pair_query)

@@ -489,9 +489,9 @@ class FileUpload(Resource):
 
         try:
             data = request.data
-            file_content = base64.b64decode(data.decode("utf-8").split("base64,")[1])
+            #file_content = base64.b64decode(data.decode("utf-8").split("base64,")[1])
 
-            df = pd.read_excel(io.BytesIO(file_content))
+            df = pd.read_excel(io.BytesIO(data))
             for i, row in df.iterrows():
                 word_name_1 = row["Word_1"]
                 word_name_2 = row["Word_2"]

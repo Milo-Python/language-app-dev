@@ -28,6 +28,12 @@ from flask_jwt_extended import (
     JWTManager
 )
 
+language_sql = """Select language_id from [dbo].[library], translation, language 
+  where 
+  MATCH (library-(translation)->language)
+  and library_id = ?
+  and translation_type = ?;"""
+
 db = SQLAlchemy()
 ma = Marshmallow()
 appinsights = AppInsights()
@@ -495,6 +501,15 @@ class FileUpload(Resource):
         if not library:
             return make_response(jsonify(msg=f"Library not found, id {library_id}", status=404), 404)
 
+        language_from_id = db.engine.execute(language_sql,(library_id, "from"))
+        language_to_id = db.engine.execute(language_sql,(library_id, "to"))
+
+        if not language_from_id:
+            return make_response(jsonify(msg=f"Language from not found, id {language_from_id}", status=404), 404)
+
+        if not language_to_id:
+            return make_response(jsonify(msg=f"Language to not found, id {language_to_id}", status=404), 404)
+
         try:
             data = request.data
             file_content = base64.b64decode(data.decode("utf-8").split("base64,")[1])
@@ -516,10 +531,10 @@ class FileUpload(Resource):
 
                 db.session.commit()
                 db.session.flush()
-                insert_family_query = f"""INSERT INTO family VALUES ((SELECT $node_id FROM Word WHERE word_id = {word_1.word_id}), (SELECT $node_id FROM [Language] WHERE language_id = 1)),
-                           ((SELECT $node_id FROM [Language] WHERE language_id = 1), (SELECT $node_id FROM Word WHERE word_id = {word_1.word_id})),
-                           ((SELECT $node_id FROM Word WHERE word_id = {word_2.word_id}), (SELECT $node_id FROM Language WHERE language_id = 2)),
-                           ((SELECT $node_id FROM [Language] WHERE language_id = 2), (SELECT $node_id FROM [Word] WHERE word_id = {word_2.word_id}));"""
+                insert_family_query = f"""INSERT INTO family VALUES ((SELECT $node_id FROM Word WHERE word_id = {word_1.word_id}), (SELECT $node_id FROM [Language] WHERE language_id = {language_from_id})),
+                           ((SELECT $node_id FROM [Language] WHERE language_id = {language_from_id}), (SELECT $node_id FROM Word WHERE word_id = {word_1.word_id})),
+                           ((SELECT $node_id FROM Word WHERE word_id = {word_2.word_id}), (SELECT $node_id FROM Language WHERE language_id = {language_to_id})),
+                           ((SELECT $node_id FROM [Language] WHERE language_id = {language_to_id}), (SELECT $node_id FROM [Word] WHERE word_id = {word_2.word_id}));"""
 
                 insert_pair_query = f"""INSERT INTO pairs VALUES ((SELECT $node_id FROM Word WHERE word_id = {word_1.word_id}), (SELECT $node_id FROM Word WHERE word_id = {word_2.word_id}), 1, 'translation'),
                            ((SELECT $node_id FROM Word WHERE word_id = {word_2.word_id}), (SELECT $node_id FROM Word WHERE word_id = {word_1.word_id}), 1, 'translation');"""

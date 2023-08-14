@@ -487,7 +487,7 @@ class FileUpload(Resource):
         # user = User.query.filter_by(user_id=new_have_request["user_id"]).first()
         # role = Role.query.filter_by(role_id=new_have_request["role_id"]).first()
 
-        library_id = request.headers.get("library_id")
+        library_id = request.headers.get("Library_id")
         if not library_id:
             return make_response(jsonify(msg="Library id is required", status=400), 400)
 

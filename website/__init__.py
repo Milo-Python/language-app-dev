@@ -501,8 +501,11 @@ class FileUpload(Resource):
         if not library:
             return make_response(jsonify(msg=f"Library not found, id {library_id}", status=404), 404)
 
-        language_from_id = db.engine.execute(language_sql,(library_id, "from"))
-        language_to_id = db.engine.execute(language_sql,(library_id, "to"))
+        language_from_id = db.engine.execute(language_sql,(library_id, "from")).fetchone()
+        language_to_id = db.engine.execute(language_sql,(library_id, "to")).fetchone()
+
+        language_from_id = language_from_id[0]
+        language_to_id = language_to_id[0]
 
         if not language_from_id:
             return make_response(jsonify(msg=f"Language from not found, id {language_from_id}", status=404), 404)

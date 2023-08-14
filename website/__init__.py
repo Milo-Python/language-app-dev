@@ -491,7 +491,7 @@ class FileUpload(Resource):
         if not library_id:
             return make_response(jsonify(msg="Library id is required", status=400), 400)
 
-        library = Library.query.filter_by(id=library_id).first()
+        library = Library.query.filter_by(library_id=library_id).first()
         if not library:
             return make_response(jsonify(msg=f"Library not found, id {library_id}", status=404), 404)
 

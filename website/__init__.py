@@ -34,6 +34,10 @@ language_sql = """Select language_id from [dbo].[library], translation, language
   and library_id = ?
   and translation_type = ?;"""
 
+library_user_sql = """select user_id from [library], [use], [user] 
+where MATCH ([user]-([use])->[library])
+and library_id = ?;"""
+
 db = SQLAlchemy()
 ma = Marshmallow()
 appinsights = AppInsights()
@@ -485,9 +489,9 @@ class AddRole(Resource):
 
 
 class FileUpload(Resource):
-    # @jwt_required()
+    @jwt_required()
     def post(self):
-        #  user_id = get_jwt_identity()
+        user_id = get_jwt_identity()
         #  new_have_request = request.json
 
         # user = User.query.filter_by(user_id=new_have_request["user_id"]).first()
@@ -500,6 +504,10 @@ class FileUpload(Resource):
         library = Library.query.filter_by(library_id=library_id).first()
         if not library:
             return make_response(jsonify(msg=f"Library not found, id {library_id}", status=404), 404)
+
+        library_user_id = db.engine.execute(library_user_sql,(library_id,)).fetchone()
+        if not library_user_id or library_user_id[0] != user_id:
+            return make_response(jsonify(msg=f"Library {library_id} does not belong to user {user_id}", status=403), 403)
 
         language_from_id = db.engine.execute(language_sql,(library_id, "from")).fetchone()
         language_to_id = db.engine.execute(language_sql,(library_id, "to")).fetchone()
@@ -551,8 +559,7 @@ class FileUpload(Resource):
                 db.engine.execute(insert_contains_query_2)
 
 
-            return make_response(jsonify(msg="File added", status=201),
-                                 201)
+            return make_response(jsonify(msg="File added", status=201), 201)
         except Exception as e:
             return make_response(jsonify(msg=str(e)), 500)
 

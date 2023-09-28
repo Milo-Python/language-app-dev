@@ -5,15 +5,7 @@ from flask import make_response
 from flask import current_app as app
 from flask_restful_swagger_3 import Api, Resource, swagger, Schema, get_swagger_blueprint
 from .schemas import EchoModel, WordsModel
-from flask_jwt_extended import (
-    create_access_token,
-    create_refresh_token,
-    get_jwt_identity,
-    jwt_required,
-    get_jwt,
-    JWTManager
-)
-
+from .decorators import jwt_required
 
 
 class Echo(Resource):

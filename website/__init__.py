@@ -16,14 +16,12 @@ from applicationinsights.flask.ext import AppInsights
 import pandas as pd
 import base64
 import io
-
 import json
-
+from .decorators import jwt_required
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
     get_jwt_identity,
-    jwt_required,
     get_jwt,
     JWTManager
 )
@@ -37,6 +35,47 @@ language_sql = """Select language_id from [dbo].[library], translation, language
 library_user_sql = """select user_id from [library], [use], [user] 
 where MATCH ([user]-([use])->[library])
 and library_id = ?;"""
+
+result_sql = """
+  INSERT INTO [dbo].[results] VALUES ((SELECT $node_id FROM dbo.[library] WHERE library_id = ?),
+        (SELECT $node_id FROM dbo.word WHERE word_id = ?), ?, ?, ?);"""
+
+result_pair_sql = """select word_2.word_id from word as word_1, pairs, word as word_2
+where match (word_1-([pairs])->word_2) and word_1.word_id = ?"""
+
+new_task_sql = """DECLARE @result1 TABLE (word_id INT, word_name VARCHAR(50))
+
+INSERT INTO @result1 select top 1 word_id, word_name 
+from dbo.family, dbo.word, dbo.[language], dbo.[library], dbo.[contains]
+where match (word-(family)->[language])
+and match ([library]-([contains])->word)
+and library_id = 4
+and language_id = 2
+ORDER BY NEWID()
+
+DECLARE @result2 TABLE (word_id INT, word_name VARCHAR(50))
+
+INSERT INTO  @result2  select word_2.word_id, word_2.word_name from dbo.word word_1, dbo.pairs, dbo.word word_2
+where match (word_1-(pairs)->word_2)
+and word_1.word_id = (SELECT TOP 1 word_id from @result1)
+
+DECLARE @result3 TABLE (word_id INT, word_name VARCHAR(50))
+
+INSERT INTO @result3 select TOP 3 word_2.word_id, word_2.word_name
+from dbo.word word_1, dbo.pairs, dbo.word word_2, dbo.[library], dbo.[contains], dbo.family, dbo.[language]
+where match (word_1-(pairs)->word_2)
+and match ([library]-([contains])->word_1)
+and match (word_1-(family)->[language])
+and library_id = 4
+and word_2.word_id != (SELECT TOP 1 word_id FROM @result2)
+and language_id = 2
+ORDER BY NEWID()
+
+SELECT word_id, word_name, 1 as answer, 0 as question FROM @result2
+UNION
+SELECT word_id, word_name, 0 as answer, 0 as question FROM @result3
+UNION
+SELECT word_id, word_name, 0 as answer, 1 as question FROM @result1;"""
 
 db = SQLAlchemy()
 ma = Marshmallow()
@@ -152,9 +191,8 @@ class AddLib(Resource):
         db.session.commit()
         db.session.flush()
 
-        insert_language_pair_query = f"""
-        INSERT INTO translation VALUES ((SELECT $node_id FROM [Library] WHERE [library_id] = {library.library_id}), (SELECT $node_id FROM [Language] WHERE [language_id] = {language_1.language_id}), 'from'),
-		   ((SELECT $node_id FROM [Library] WHERE [library_id] = {library.library_id}), (SELECT $node_id FROM [Language] WHERE [language_id] = {language_2.language_id}), 'to');"""
+        insert_language_pair_query = f"""INSERT INTO translation VALUES ((SELECT $node_id FROM [Library] WHERE [library_id] = {library.library_id}), (SELECT $node_id FROM [Language] WHERE [language_id] = {language_1.language_id}), 'from'),
+		#   ((SELECT $node_id FROM [Library] WHERE [library_id] = {library.library_id}), (SELECT $node_id FROM [Language] WHERE [language_id] = {language_2.language_id}), 'to');"""
 
         insert_user_query = f"""INSERT INTO [dbo].[use] VALUES ((SELECT $node_id FROM [dbo].[user] WHERE user_id = {user_id}), (SELECT $node_id FROM library WHERE library_id = {library.library_id}), GETDATE());"""
         db.engine.execute(insert_language_pair_query)
@@ -163,6 +201,86 @@ class AddLib(Resource):
         return make_response(
             jsonify(library_id=library.library_id, library_name=library.library_name, msg="Library added", status=201),
             201)
+
+
+class PerformTask(Resource):
+    schema = {
+        "type": "object",
+        "properties": {
+            "library_id": {"type": "number"},
+            "language_id": {"type": "number"}
+        },
+        "required": ["library_id", "language_id"]
+    }
+
+    @expects_json(schema)
+    @jwt_required()
+    def post(self):
+        user_id = get_jwt_identity()
+        request_data = request.json
+        library_id = request_data["library_id"]
+        language_id = request_data["language_id"]
+        result = db.engine.execute("SET NOCOUNT ON;{CALL PerformTask(?, ?)}", (library_id, language_id)).fetchall()
+        data = {
+            "wrong": []
+        }
+        for row in result:
+            word_id, word_name, answer, question = row
+
+            word_dict = {
+                "word_id": word_id,
+                "word_name": word_name
+            }
+
+            if answer:
+                data["answer"] = word_dict
+            elif question:
+                data["question"] = word_dict
+            else:
+                data["wrong"].append(word_dict)
+
+        return make_response(
+            jsonify(result=data,
+                    status=200),
+            200)
+
+class AddResult(Resource):
+    schema = {
+        "type": "object",
+        "properties": {
+            "library_id": {"type": "number"},
+            "question_word_id": {"type": "number"},
+            "answer_word_id": {"type": "number"}
+        },
+        "required": ["question_word_id", "answer_word_id"]
+    }
+
+    @expects_json(schema)
+    @jwt_required()
+    def post(self):
+        user_id = get_jwt_identity()
+        request_data = request.json
+        library_id = request_data["library_id"]
+        question_word_id = request_data["question_word_id"]
+        answer_word_id = request_data["answer_word_id"]
+
+        library = Library.query.filter_by(library_id=library_id).first()
+
+        if not library:
+            return make_response(jsonify(mgs=f"library not found: {library_id}", code=404), 404)
+
+        good_ind = db.engine.execute(result_pair_sql, (question_word_id,)).fetchone()
+
+        if good_ind is not None and good_ind[0] == answer_word_id:
+            good = 1
+        else:
+            good = 0
+
+        db.engine.execute(result_sql, (library_id, question_word_id, question_word_id, answer_word_id, good,))
+
+        return make_response(
+            jsonify(question_word_id=question_word_id, answer_word_id=answer_word_id, good=good, msg="Result added",
+                    status=201), 201)
 
 
 class ChangeLib(Resource):
@@ -505,12 +623,13 @@ class FileUpload(Resource):
         if not library:
             return make_response(jsonify(msg=f"Library not found, id {library_id}", status=404), 404)
 
-        library_user_id = db.engine.execute(library_user_sql,(library_id,)).fetchone()
+        library_user_id = db.engine.execute(library_user_sql, (library_id,)).fetchone()
         if not library_user_id or library_user_id[0] != user_id:
-            return make_response(jsonify(msg=f"Library {library_id} does not belong to user {user_id}", status=403), 403)
+            return make_response(jsonify(msg=f"Library {library_id} does not belong to user {user_id}", status=403),
+                                 403)
 
-        language_from_id = db.engine.execute(language_sql,(library_id, "from")).fetchone()
-        language_to_id = db.engine.execute(language_sql,(library_id, "to")).fetchone()
+        language_from_id = db.engine.execute(language_sql, (library_id, "from")).fetchone()
+        language_to_id = db.engine.execute(language_sql, (library_id, "to")).fetchone()
 
         language_from_id = language_from_id[0]
         language_to_id = language_to_id[0]
@@ -557,7 +676,6 @@ class FileUpload(Resource):
                 db.engine.execute(insert_pair_query)
                 db.engine.execute(insert_contains_query_1)
                 db.engine.execute(insert_contains_query_2)
-
 
             return make_response(jsonify(msg="File added", status=201), 201)
         except Exception as e:
@@ -689,6 +807,8 @@ def create_app():
     api.add_resource(TokenRefresh, "/refresh")
     api.add_resource(UserLogin, "/login")
     api.add_resource(FileUpload, "/file_upload")
+    api.add_resource(PerformTask, "/task")
+    api.add_resource(AddResult, "/result")
 
     # @app.route("/file_upload", methods=["POST"])
     # def upload():

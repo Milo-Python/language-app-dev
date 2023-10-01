@@ -1,3 +1,5 @@
+import random
+
 from flask import Flask, jsonify, request
 from flask_expects_json import expects_json
 from flask_marshmallow import Marshmallow
@@ -234,11 +236,12 @@ class PerformTask(Resource):
 
             if answer:
                 data["answer"] = word_dict
+                data["wrong"].append(word_dict)
             elif question:
                 data["question"] = word_dict
             else:
                 data["wrong"].append(word_dict)
-
+        random.shuffle(data["wrong"])
         return make_response(
             jsonify(result=data,
                     status=200),

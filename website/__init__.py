@@ -224,7 +224,7 @@ class PerformTask(Resource):
         language_id = request_data["language_id"]
         result = db.engine.execute("SET NOCOUNT ON;{CALL PerformTask(?, ?)}", (library_id, language_id)).fetchall()
         data = {
-            "wrong": []
+            "answers": []
         }
         for row in result:
             word_id, word_name, answer, question = row
@@ -235,13 +235,13 @@ class PerformTask(Resource):
             }
 
             if answer:
-                data["answer"] = word_dict
-                data["wrong"].append(word_dict)
+                data["correct"] = word_dict
+                data["answers"].append(word_dict)
             elif question:
                 data["question"] = word_dict
             else:
-                data["wrong"].append(word_dict)
-        random.shuffle(data["wrong"])
+                data["answers"].append(word_dict)
+        random.shuffle(data["answers"])
         return make_response(
             jsonify(result=data,
                     status=200),
@@ -282,7 +282,7 @@ class AddResult(Resource):
         db.engine.execute(result_sql, (library_id, question_word_id, question_word_id, answer_word_id, good,))
 
         return make_response(
-            jsonify(question_word_id=question_word_id, answer_word_id=answer_word_id, good=good, msg="Result added",
+            jsonify(question_word_id=question_word_id, answer_word_id=answer_word_id, correct_answer=good_ind[0], good=good, msg="Result added",
                     status=201), 201)
 
 

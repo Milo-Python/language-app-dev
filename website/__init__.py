@@ -222,7 +222,7 @@ class PerformTask(Resource):
         request_data = request.json
         library_id = request_data["library_id"]
         language_id = request_data["language_id"]
-        result = db.engine.execute("SET NOCOUNT ON;{CALL PerformTask(?, ?)}", (library_id, language_id)).fetchall()
+        result = db.engine.execute("SET NOCOUNT ON;{CALL PerformTask(?, ?, ?)}", (library_id, language_id, user_id)).fetchall()
         data = {
             "answers": []
         }
@@ -266,6 +266,7 @@ class AddResult(Resource):
         library_id = request_data["library_id"]
         question_word_id = request_data["question_word_id"]
         answer_word_id = request_data["answer_word_id"]
+        user = User.query.filter_by(user_id=user_id).first()
 
         library = Library.query.filter_by(library_id=library_id).first()
 
@@ -278,6 +279,12 @@ class AddResult(Resource):
             good = 1
         else:
             good = 0
+
+        game = db.engine.execute("""select [game].* from [dbo].[game], [user], [play] where match ([user]-([play])->[game]) and [open] = 1  and [user].[user_id] = ?""", (user.user_id,)).fetchone()
+        if not game:
+            db.engine.execute("""insert into [dbo].[game] ([start_date], [end_date]) values (GETDATE(), null)""")
+            db.engine.execute("""insert into [dbo].[play] values ((select $node_id from [user] where [user_id] = ?), (select top 1 $node_id from game order by game_id desc))""", (user.user_id,))
+            game = db.engine.execute("""select [game].* from [dbo].[game], [user], [play] where match ([user]-([play])->[game]) and [open] = 1  and [user].[user_id] = ?""", (user.user_id,)).fetchone()
 
         db.engine.execute(result_sql, (library_id, question_word_id, question_word_id, answer_word_id, good,))
 

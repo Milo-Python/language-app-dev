@@ -242,6 +242,10 @@ class PerformTask(Resource):
             else:
                 data["answers"].append(word_dict)
         random.shuffle(data["answers"])
+        if len(data["answers"]) < 4:
+            print(user_id)
+            db.engine.execute(""" update [dbo].[game] set [game].[open] = 0, [game].[end_date] = GETDATE() from [dbo].[game], [user], [play] where match ([user]-([play])->[game]) and [open] = 1  and [user].[user_id] = ?""", (user_id,))
+            return make_response(jsonify(result="End game!", status=200), 200)
         return make_response(
             jsonify(result=data,
                     status=200),

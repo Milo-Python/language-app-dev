@@ -25,6 +25,13 @@ class Library(db.Model):
     library_create_date = db.Column(db.DateTime, default=func.now())
 
 
+class Game(db.Model):
+    game_id = db.Column(db.Integer, primary_key=True)
+    open = db.Column(db.Integer)
+    start_date = db.Column(db.DateTime)
+    end_date = db.Column(db.DateTime)
+
+
 class User(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
     user_name = db.Column(db.String(50))

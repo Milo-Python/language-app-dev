@@ -39,7 +39,7 @@ where MATCH ([user]-([use])->[library])
 and library_id = ?;"""
 
 result_sql = """
-  INSERT INTO [dbo].[results] VALUES ((SELECT $node_id FROM dbo.[library] WHERE library_id = ?),
+  INSERT INTO [dbo].[results] VALUES ((SELECT $node_id FROM dbo.[game] WHERE game_id = ?),
         (SELECT $node_id FROM dbo.word WHERE word_id = ?), ?, ?, ?);"""
 
 result_pair_sql = """select word_2.word_id from word as word_1, pairs, word as word_2
@@ -271,7 +271,7 @@ class AddResult(Resource):
         library = Library.query.filter_by(library_id=library_id).first()
 
         if not library:
-            return make_response(jsonify(mgs=f"library not found: {library_id}", code=404), 404)
+            return make_response(jsonify(mgs=f"game not found: {library_id}", code=404), 404)
 
         good_ind = db.engine.execute(result_pair_sql, (question_word_id,)).fetchone()
 
@@ -286,7 +286,7 @@ class AddResult(Resource):
             db.engine.execute("""insert into [dbo].[play] values ((select $node_id from [user] where [user_id] = ?), (select top 1 $node_id from game order by game_id desc))""", (user.user_id,))
             game = db.engine.execute("""select [game].* from [dbo].[game], [user], [play] where match ([user]-([play])->[game]) and [open] = 1  and [user].[user_id] = ?""", (user.user_id,)).fetchone()
 
-        db.engine.execute(result_sql, (library_id, question_word_id, question_word_id, answer_word_id, good,))
+        db.engine.execute(result_sql, (game.game_id, question_word_id, question_word_id, answer_word_id, good,))
 
         return make_response(
             jsonify(question_word_id=question_word_id, answer_word_id=answer_word_id, correct_answer=good_ind[0], good=good, msg="Result added",
